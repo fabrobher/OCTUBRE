@@ -1,6 +1,5 @@
-import { Product, Order, Restaurant, RestaurantCategory, ProductCategory } from '../models/models.js'
-import Sequelize from 'sequelize'
-
+import { Sequelize } from 'sequelize'
+import { Order, Product, ProductCategory, Restaurant, RestaurantCategory, sequelizeSession } from '../models/models.js'
 const indexRestaurant = async function (req, res) {
   try {
     const products = await Product.findAll({
@@ -71,6 +70,43 @@ const destroy = async function (req, res) {
   }
 }
 
+const toPromote = async function (req, res) {
+  const t = await sequelizeSession.transaction()
+  try {
+    // Busco a ver si hay un producto que YA ESTE PROMOCIONADO
+    const existingPromotedProduct = await Product.findOne(
+      { where: { esPromocionado: true } })
+
+    // SI EXISTE UN PRODUCTO PROMOCIONADO
+    if (existingPromotedProduct) {
+      // DESPROMOCIONO EL PRODUCTO promocionado
+      await Product.update(
+        { esPromocionado: false },
+        { where: { id: existingPromotedProduct.id }, transaction: t }
+      )
+    }
+
+    // PROMOCIONO EL PRODUCTO NUEVO QUE QUIERO promocionar
+    // lo promocionamos buscando su id
+
+    await Product.update(
+      { esPromocionado: true },
+      { where: { id: req.params.productId }, transaction: t }
+    )
+    await t.commit()
+
+    // buscamos ese producto promocionado nuevo por su ID
+    // mencionada ANTERIORMENTE
+    const productoActualizado = await Product.findByPk(req.params.productId)
+
+    // lo metemos al json
+    res.json(productoActualizado)
+  } catch (err) {
+    await t.rollback()
+    res.status(500)
+  }
+}
+
 const popular = async function (req, res) {
   try {
     const topProducts = await Product.findAll(
@@ -113,6 +149,7 @@ const ProductController = {
   create,
   update,
   destroy,
+  toPromote,
   popular
 }
 export default ProductController

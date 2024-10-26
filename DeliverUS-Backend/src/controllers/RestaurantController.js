@@ -1,4 +1,4 @@
-import { Restaurant, Product, RestaurantCategory, ProductCategory } from '../models/models.js'
+import { Product, ProductCategory, Restaurant, RestaurantCategory } from '../models/models.js'
 
 const index = async function (req, res) {
   try {
@@ -61,7 +61,7 @@ const show = async function (req, res) {
         model: RestaurantCategory,
         as: 'restaurantCategory'
       }],
-      order: [[{ model: Product, as: 'products' }, 'order', 'ASC']]
+      order: [[{ model: Product, as: 'products' }, 'esPromocionado', 'DESC']]
     }
     )
     res.json(restaurant)

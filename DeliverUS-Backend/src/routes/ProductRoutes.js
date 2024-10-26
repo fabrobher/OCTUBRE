@@ -1,11 +1,11 @@
-import * as ProductValidation from '../controllers/validation/ProductValidation.js'
 import ProductController from '../controllers/ProductController.js'
-import { Product } from '../models/models.js'
-import { handleFilesUpload } from '../middlewares/FileHandlerMiddleware.js'
+import * as ProductValidation from '../controllers/validation/ProductValidation.js'
 import { hasRole, isLoggedIn } from '../middlewares/AuthMiddleware.js'
 import { checkEntityExists } from '../middlewares/EntityMiddleware.js'
+import { handleFilesUpload } from '../middlewares/FileHandlerMiddleware.js'
 import * as ProductMiddleware from '../middlewares/ProductMiddleware.js'
 import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
+import { Product } from '../models/models.js'
 
 const loadFileRoutes = (app) => {
   app.route('/products')
@@ -43,6 +43,16 @@ const loadFileRoutes = (app) => {
       ProductMiddleware.checkProductOwnership,
       ProductMiddleware.checkProductHasNotBeenOrdered,
       ProductController.destroy
+    )
+
+  // esta ruta sirve para saber que se va a promocionar un producto
+  app.route('/products/:productId/promote')
+    .patch(
+      isLoggedIn,
+      hasRole('owner'),
+      checkEntityExists(Product, 'productId'),
+      ProductMiddleware.checkProductOwnership,
+      ProductController.toPromote
     )
 }
 export default loadFileRoutes

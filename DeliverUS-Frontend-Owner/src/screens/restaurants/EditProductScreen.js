@@ -1,18 +1,18 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import * as ExpoImagePicker from 'expo-image-picker'
+import { ErrorMessage, Formik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { Image, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native'
-import * as ExpoImagePicker from 'expo-image-picker'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import DropDownPicker from 'react-native-dropdown-picker'
+import { showMessage } from 'react-native-flash-message'
+import * as yup from 'yup'
+import defaultProductImage from '../../../assets/product.jpeg'
+import { getDetail, getProductCategories, update } from '../../api/ProductEndpoints'
+import { prepareEntityImages } from '../../api/helpers/FileUploadHelper'
 import InputItem from '../../components/InputItem'
+import TextError from '../../components/TextError'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
-import defaultProductImage from '../../../assets/product.jpeg'
-import { showMessage } from 'react-native-flash-message'
-import DropDownPicker from 'react-native-dropdown-picker'
-import * as yup from 'yup'
-import { ErrorMessage, Formik } from 'formik'
-import TextError from '../../components/TextError'
-import { getProductCategories, getDetail, update } from '../../api/ProductEndpoints'
-import { prepareEntityImages } from '../../api/helpers/FileUploadHelper'
 import { buildInitialValues } from '../Helper'
 
 export default function EditProductScreen ({ navigation, route }) {
@@ -21,7 +21,7 @@ export default function EditProductScreen ({ navigation, route }) {
   const [backendErrors, setBackendErrors] = useState()
   const [product, setProduct] = useState({})
 
-  const [initialProductValues, setInitialProductValues] = useState({ name: null, description: null, price: null, order: null, productCategoryId: null, availability: null, image: null })
+  const [initialProductValues, setInitialProductValues] = useState({ name: null, esPromocionado: null, description: null, price: null, order: null, productCategoryId: null, availability: null, image: null })
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -42,7 +42,9 @@ export default function EditProductScreen ({ navigation, route }) {
       .number()
       .positive()
       .integer()
-      .required('Product category is required')
+      .required('Product category is required'),
+    esPromocionado: yup
+      .boolean()
   })
 
   useEffect(() => {
@@ -172,6 +174,19 @@ export default function EditProductScreen ({ navigation, route }) {
                 }
               />
               <ErrorMessage name={'availability'} render={msg => <TextError>{msg}</TextError> }/>
+
+              <TextRegular>Quieres promocionadorlo?</TextRegular>
+              <Switch
+                trackColor={{ false: GlobalStyles.brandSecondary, true: GlobalStyles.brandPrimary }}
+                thumbColor={values.esPromocionado ? GlobalStyles.brandSecondary : '#f4f3f4'}
+                // onValueChange={toggleSwitch}
+                value={values.esPromocionado}
+                style={styles.switch}
+                onValueChange={value =>
+                  setFieldValue('esPromocionado', value)
+                }
+              />
+              <ErrorMessage name={'esPromocionado'} render={msg => <TextError>{msg}</TextError> }/>
 
               <Pressable onPress={() =>
                 pickImage(

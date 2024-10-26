@@ -27,6 +27,9 @@ module.exports = {
       availability: {
         type: Sequelize.BOOLEAN
       },
+      esPromocionado: {
+        type: Sequelize.BOOLEAN
+      },
       restaurantId: {
         type: Sequelize.INTEGER,
         allowNull: false,
