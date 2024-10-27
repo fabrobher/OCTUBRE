@@ -1,18 +1,18 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import * as ExpoImagePicker from 'expo-image-picker'
+import { ErrorMessage, Formik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import * as ExpoImagePicker from 'expo-image-picker'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import * as yup from 'yup'
 import DropDownPicker from 'react-native-dropdown-picker'
+import { showMessage } from 'react-native-flash-message'
+import * as yup from 'yup'
+import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
+import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
 import { create, getRestaurantCategories } from '../../api/RestaurantEndpoints'
 import InputItem from '../../components/InputItem'
+import TextError from '../../components/TextError'
 import TextRegular from '../../components/TextRegular'
 import * as GlobalStyles from '../../styles/GlobalStyles'
-import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
-import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
-import { showMessage } from 'react-native-flash-message'
-import { ErrorMessage, Formik } from 'formik'
-import TextError from '../../components/TextError'
 
 export default function CreateRestaurantScreen ({ navigation }) {
   const [open, setOpen] = useState(false)
@@ -177,6 +177,26 @@ export default function CreateRestaurantScreen ({ navigation }) {
                 dropDownStyle={{ backgroundColor: '#fafafa' }}
               />
               <ErrorMessage name={'restaurantCategoryId'} render={msg => <TextError>{msg}</TextError> }/>
+              <TextRegular>Create Category: </TextRegular>
+
+              <Pressable
+                onPress={() => navigation.navigate('CreateRestaurantCategoryScreen')
+                }
+                style={({ pressed }) => [
+                  {
+                    backgroundColor: pressed
+                      ? GlobalStyles.brandBlueTap
+                      : GlobalStyles.brandBlue
+                  },
+                  styles.actionButton
+                ]}>
+                <View style={[{ flex: 1, flexDirection: 'row', justifyContent: 'center' }]}>
+                  <MaterialCommunityIcons name='folder-plus-outline' color={'white'} size={20}/>
+                  <TextRegular textStyle={styles.text}>
+                    Create new Category
+                  </TextRegular>
+                </View>
+              </Pressable>
 
               <Pressable onPress={() =>
                 pickImage(
@@ -249,7 +269,7 @@ const styles = StyleSheet.create({
     marginLeft: 5
   },
   imagePicker: {
-    height: 40,
+    height: 30,
     paddingLeft: 10,
     marginTop: 20,
     marginBottom: 80
