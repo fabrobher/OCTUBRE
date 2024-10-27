@@ -1,5 +1,5 @@
-import { Model } from 'sequelize'
 import moment from 'moment'
+import { Model } from 'sequelize'
 
 const loadModel = (sequelize, DataTypes) => {
   class Restaurant extends Model {
@@ -76,6 +76,10 @@ const loadModel = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.DATE,
       defaultValue: new Date()
+    },
+    sortByPrice: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     sequelize,

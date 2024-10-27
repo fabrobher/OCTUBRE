@@ -1,12 +1,12 @@
-import * as RestaurantValidation from '../controllers/validation/RestaurantValidation.js'
-import RestaurantController from '../controllers/RestaurantController.js'
-import ProductController from '../controllers/ProductController.js'
 import OrderController from '../controllers/OrderController.js'
-import { isLoggedIn, hasRole } from '../middlewares/AuthMiddleware.js'
-import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
+import ProductController from '../controllers/ProductController.js'
+import RestaurantController from '../controllers/RestaurantController.js'
+import * as RestaurantValidation from '../controllers/validation/RestaurantValidation.js'
+import { hasRole, isLoggedIn } from '../middlewares/AuthMiddleware.js'
 import { checkEntityExists } from '../middlewares/EntityMiddleware.js'
-import * as RestaurantMiddleware from '../middlewares/RestaurantMiddleware.js'
 import { handleFilesUpload } from '../middlewares/FileHandlerMiddleware.js'
+import * as RestaurantMiddleware from '../middlewares/RestaurantMiddleware.js'
+import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js'
 import { Restaurant } from '../models/models.js'
 
 const loadFileRoutes = function (app) {
@@ -62,5 +62,14 @@ const loadFileRoutes = function (app) {
       checkEntityExists(Restaurant, 'restaurantId'),
       RestaurantMiddleware.checkRestaurantOwnership,
       OrderController.analytics)
+
+  app.route('/restaurants/:restaurantId/toggleSort')
+    .patch(
+      isLoggedIn,
+      hasRole('owner'),
+      checkEntityExists(Restaurant, 'restaurantId'),
+      RestaurantMiddleware.checkRestaurantOwnership,
+      RestaurantController.toggleSortBy
+    )
 }
 export default loadFileRoutes
