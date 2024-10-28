@@ -1,19 +1,21 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import * as ExpoImagePicker from 'expo-image-picker'
+import { ErrorMessage, Formik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import * as ExpoImagePicker from 'expo-image-picker'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import * as yup from 'yup'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { update, getRestaurantCategories, getDetail } from '../../api/RestaurantEndpoints'
-import InputItem from '../../components/InputItem'
-import TextRegular from '../../components/TextRegular'
-import * as GlobalStyles from '../../styles/GlobalStyles'
-import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
-import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
 import { showMessage } from 'react-native-flash-message'
-import { ErrorMessage, Formik } from 'formik'
-import TextError from '../../components/TextError'
+import * as yup from 'yup'
+import restaurantBackground from '../../../assets/restaurantBackground.jpeg'
+import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
 import { prepareEntityImages } from '../../api/helpers/FileUploadHelper'
+import { getDetail, getRestaurantCategories, update } from '../../api/RestaurantEndpoints'
+import ConfirmationModal from '../../components/ConfirmationModal'
+import InputItem from '../../components/InputItem'
+import TextError from '../../components/TextError'
+import TextRegular from '../../components/TextRegular'
+import TextSemiBold from '../../components/TextSemibold'
+import * as GlobalStyles from '../../styles/GlobalStyles'
 import { buildInitialValues } from '../Helper'
 
 export default function EditRestaurantScreen ({ navigation, route }) {
@@ -22,7 +24,9 @@ export default function EditRestaurantScreen ({ navigation, route }) {
   const [backendErrors, setBackendErrors] = useState()
   const [restaurant, setRestaurant] = useState({})
 
-  const [initialRestaurantValues, setInitialRestaurantValues] = useState({ name: null, description: null, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, logo: null, heroImage: null })
+  const [initialRestaurantValues, setInitialRestaurantValues] = useState({ name: null, description: null, porcentaje: 0, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, logo: null, heroImage: null })
+  const [porcentajeShowDialog, setPorcentajeShowDialog] = useState(false)
+
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -44,6 +48,10 @@ export default function EditRestaurantScreen ({ navigation, route }) {
       .number()
       .positive('Please provide a valid shipping cost value')
       .required('Shipping costs value is required'),
+    porcentaje: yup
+      .number()
+      .min(-5)
+      .max(5),
     email: yup
       .string()
       .nullable()
@@ -129,6 +137,11 @@ export default function EditRestaurantScreen ({ navigation, route }) {
 
   const updateRestaurant = async (values) => {
     setBackendErrors([])
+    if (values.porcentaje !== 0 && !porcentajeShowDialog) {
+      setPorcentajeShowDialog(true)
+    } else {
+      setPorcentajeShowDialog(false)
+    }
     try {
       const updatedRestaurant = await update(restaurant.id, values)
       showMessage({
@@ -186,6 +199,44 @@ export default function EditRestaurantScreen ({ navigation, route }) {
                 name='phone'
                 label='Phone:'
               />
+
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+                marginBottom: 10
+              }}>
+                <Pressable onPress={() => {
+                  const newPorcentaje = values.porcentaje + 0.5
+                  if (newPorcentaje < 5) {
+                    setFieldValue('porcentaje', newPorcentaje)
+                  }
+                }}>
+                  <MaterialCommunityIcons
+                  name={'arrow-up-circle'}
+                  color={GlobalStyles.brandSecondaryTap}
+                  size={40}
+                  />
+
+                </Pressable>
+                <TextSemiBold>Porcentaje actual<TextSemiBold style={{ color: GlobalStyles.brandPrimary }}>
+                  {values.porcentaje.toFixed(1)} %
+                  </TextSemiBold></TextSemiBold>
+
+                <Pressable onPress={() => {
+                  const newPorcentaje = values.porcentaje - 0.5
+                  if (newPorcentaje > -5) {
+                    setFieldValue('porcentaje', newPorcentaje)
+                  }
+                }}>
+                <MaterialCommunityIcons
+                name={'arrow-down-circle'}
+                color={GlobalStyles.brandSecondaryTap}
+                size={40}
+                />
+                </Pressable>
+              </View>
 
               <DropDownPicker
                 open={open}
@@ -252,6 +303,12 @@ export default function EditRestaurantScreen ({ navigation, route }) {
               </Pressable>
             </View>
           </View>
+          <ConfirmationModal
+          isVisible={porcentajeShowDialog} // Modal depende de `porcentajeShowDialog`
+          onCancel={() => setPorcentajeShowDialog(false)} // Ocultar si el usuario cancela
+          onConfirm={() => updateRestaurant(values)} // Confirmación continua con la actualización
+          >
+          </ConfirmationModal>
         </ScrollView>
       )}
     </Formik>

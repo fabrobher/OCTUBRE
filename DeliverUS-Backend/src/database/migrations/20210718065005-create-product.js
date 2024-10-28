@@ -27,6 +27,10 @@ module.exports = {
       availability: {
         type: Sequelize.BOOLEAN
       },
+      basePrice: {
+        type: Sequelize.DOUBLE,
+        allowNull: false
+      },
       restaurantId: {
         type: Sequelize.INTEGER,
         allowNull: false,

@@ -1,17 +1,17 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react'
-import { StyleSheet, FlatList, Pressable, View } from 'react-native'
+import { FlatList, Pressable, StyleSheet, View } from 'react-native'
 
-import { getAll, remove } from '../../api/RestaurantEndpoints'
-import ImageCard from '../../components/ImageCard'
-import TextSemiBold from '../../components/TextSemibold'
-import TextRegular from '../../components/TextRegular'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import * as GlobalStyles from '../../styles/GlobalStyles'
-import { AuthorizationContext } from '../../context/AuthorizationContext'
 import { showMessage } from 'react-native-flash-message'
-import DeleteModal from '../../components/DeleteModal'
 import restaurantLogo from '../../../assets/restaurantLogo.jpeg'
+import { getAll, remove } from '../../api/RestaurantEndpoints'
+import DeleteModal from '../../components/DeleteModal'
+import ImageCard from '../../components/ImageCard'
+import TextRegular from '../../components/TextRegular'
+import TextSemiBold from '../../components/TextSemibold'
+import { AuthorizationContext } from '../../context/AuthorizationContext'
+import * as GlobalStyles from '../../styles/GlobalStyles'
 
 export default function RestaurantsScreen ({ navigation, route }) {
   const [restaurants, setRestaurants] = useState([])
@@ -40,6 +40,17 @@ export default function RestaurantsScreen ({ navigation, route }) {
           <TextSemiBold>Avg. service time: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.averageServiceMinutes} min.</TextSemiBold></TextSemiBold>
         }
         <TextSemiBold>Shipping: <TextSemiBold textStyle={{ color: GlobalStyles.brandPrimary }}>{item.shippingCosts.toFixed(2)}€</TextSemiBold></TextSemiBold>
+
+        {item.porcentaje !== 0.0 && <View style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end'
+        }}>
+          <TextSemiBold textStyle={{ color: item.porcentaje > 0 ? 'red' : 'green' }}>
+            {item.porcentaje > 0 ? 'Incremento de precios aplicados' : '¡Descuentos aplicados'}
+          </TextSemiBold>
+          </View>
+        }
         <View style={styles.actionButtonsContainer}>
           <Pressable
             onPress={() => navigation.navigate('EditRestaurantScreen', { id: item.id })

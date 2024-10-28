@@ -1,5 +1,5 @@
-import { Model } from 'sequelize'
 import moment from 'moment'
+import { Model } from 'sequelize'
 
 const loadModel = (sequelize, DataTypes) => {
   class Restaurant extends Model {
@@ -62,6 +62,11 @@ const loadModel = (sequelize, DataTypes) => {
     restaurantCategoryId: {
       allowNull: false,
       type: DataTypes.INTEGER
+    },
+    porcentaje: {
+      type: DataTypes.DOUBLE,
+      defaultValue: 0.0
+
     },
     userId: {
       allowNull: false,

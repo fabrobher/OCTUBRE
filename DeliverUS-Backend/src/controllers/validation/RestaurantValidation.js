@@ -12,6 +12,7 @@ const create = [
   check('email').optional({ nullable: true, checkFalsy: true }).isString().isEmail().trim(),
   check('phone').optional({ nullable: true, checkFalsy: true }).isString().isLength({ min: 1, max: 255 }).trim(),
   check('restaurantCategoryId').exists({ checkNull: true }).isInt({ min: 1 }).toInt(),
+  check('porcentaje').exists().isFloat({ min: -5, max: 5 }).toFloat(),
   check('userId').not().exists(),
   check('heroImage').custom((value, { req }) => {
     return checkFileIsImage(req, 'heroImage')
@@ -36,6 +37,7 @@ const update = [
   check('email').optional({ nullable: true, checkFalsy: true }).isString().isEmail().trim(),
   check('phone').optional({ nullable: true, checkFalsy: true }).isString().isLength({ min: 1, max: 255 }).trim(),
   check('restaurantCategoryId').exists({ checkNull: true }).isInt({ min: 1 }).toInt(),
+  check('porcentaje').exists().isFloat({ min: -5, max: 5 }).toFloat(),
   check('userId').not().exists(),
   check('heroImage').custom((value, { req }) => {
     return checkFileIsImage(req, 'heroImage')
