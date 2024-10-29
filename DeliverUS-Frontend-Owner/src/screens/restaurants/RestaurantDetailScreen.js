@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable } from 'react-native'
-import { showMessage } from 'react-native-flash-message'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { getDetail } from '../../api/RestaurantEndpoints'
+import React, { useEffect, useState } from 'react'
+import { FlatList, Image, ImageBackground, Pressable, StyleSheet, View } from 'react-native'
+import { showMessage } from 'react-native-flash-message'
+import defaultProductImage from '../../../assets/product.jpeg'
 import { remove } from '../../api/ProductEndpoints'
+import { getDetail } from '../../api/RestaurantEndpoints'
+import DeleteModal from '../../components/DeleteModal'
 import ImageCard from '../../components/ImageCard'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
 import * as GlobalStyles from '../../styles/GlobalStyles'
-import DeleteModal from '../../components/DeleteModal'
-import defaultProductImage from '../../../assets/product.jpeg'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const [restaurant, setRestaurant] = useState({})
@@ -31,6 +31,17 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
             <TextRegular textStyle={styles.description}>{restaurant.restaurantCategory ? restaurant.restaurantCategory.name : ''}</TextRegular>
           </View>
         </ImageBackground>
+             {/* Solution */}
+             <View style={styles.containerPerformance}>
+          <FlatList
+            ListHeaderComponent={renderHeaderPerformances}
+            ListEmptyComponent={renderPerformancesEmptyList}
+            style={styles.containerPerformance}
+            data={restaurant?.performances}
+            renderItem={renderPerformance}
+            keyExtractor={item => item.id.toString()}
+          />
+        </View>
 
         <Pressable
           onPress={() => navigation.navigate('CreateProductScreen', { id: restaurant.id })
@@ -51,6 +62,20 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
           </View>
         </Pressable>
       </View>
+    )
+  }
+
+  const renderHeaderPerformances = () => {
+    return (
+      <>
+      {restaurant?.performances?.length !== 0 &&
+          <View>
+            <TextSemiBold style={styles.textTitle}>
+              Próximas actuaciones:
+            </TextSemiBold>
+          </View>
+      }
+      </>
     )
   }
 
@@ -107,10 +132,32 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
     )
   }
 
+  // Solution
+  const renderPerformance = ({ item }) => {
+    const appointment = new Date(item.appointment)
+    const semana = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']
+    return (
+        <View>
+        <TextRegular textStyle={styles.description}>
+          {item.group} el próximo {semana[appointment.getDay()]}, {appointment.toLocaleDateString()}
+          { /* a las {appointment.getHours().toString().padStart(2,"0")}:{appointment.getMinutes().toString().padStart(2,"0")} */ }
+        </TextRegular>
+      </View>
+    )
+  }
   const renderEmptyProductsList = () => {
     return (
       <TextRegular textStyle={styles.emptyList}>
         This restaurant has no products yet.
+      </TextRegular>
+    )
+  }
+
+  // Solution
+  const renderPerformancesEmptyList = () => {
+    return (
+      <TextRegular textStyle={styles.emptyPerformanceList}>
+        ¡No hay actuaciones en fechas próximas!
       </TextRegular>
     )
   }
@@ -181,6 +228,14 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     backgroundColor: GlobalStyles.brandSecondary
   },
+  // Solution
+  containerPerformance: {
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    flexDirection: 'column',
+    alignItems: 'center',
+    borderRadius: 10
+  },
   restaurantHeaderContainer: {
     height: 250,
     padding: 20,
@@ -192,6 +247,13 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover',
     justifyContent: 'center'
+  },
+  // Solution
+  emptyPerformanceList: {
+    textAlign: 'center',
+    fontSize: 15,
+    padding: 20,
+    color: 'white'
   },
   image: {
     height: 100,
