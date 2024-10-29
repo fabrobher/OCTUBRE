@@ -25,7 +25,7 @@ export default function EditRestaurantScreen ({ navigation, route }) {
   const [restaurant, setRestaurant] = useState({})
 
   const [initialRestaurantValues, setInitialRestaurantValues] = useState({ name: null, description: null, porcentaje: 0, address: null, postalCode: null, url: null, shippingCosts: null, email: null, phone: null, restaurantCategoryId: null, logo: null, heroImage: null })
-  const [porcentajeShowDialog, setPorcentajeShowDialog] = useState(false)
+  const [percentageShowDialog, setPercentageShowDialog] = useState(false)
 
   const validationSchema = yup.object().shape({
     name: yup
@@ -136,24 +136,24 @@ export default function EditRestaurantScreen ({ navigation, route }) {
   }
 
   const updateRestaurant = async (values) => {
-    setBackendErrors([])
-    if (values.porcentaje !== 0 && !porcentajeShowDialog) {
-      setPorcentajeShowDialog(true)
+    if (values.percentage != 0 && !percentageShowDialog) {
+      setPercentageShowDialog(true)
     } else {
-      setPorcentajeShowDialog(false)
-    }
-    try {
-      const updatedRestaurant = await update(restaurant.id, values)
-      showMessage({
-        message: `Restaurant ${updatedRestaurant.name} succesfully updated`,
-        type: 'success',
-        style: GlobalStyles.flashStyle,
-        titleStyle: GlobalStyles.flashTextStyle
-      })
-      navigation.navigate('RestaurantsScreen', { dirty: true })
-    } catch (error) {
-      console.log(error)
-      setBackendErrors(error.errors)
+      // Solution
+      setPercentageShowDialog(false)
+      try {
+        const updatedRestaurant = await update(restaurant.id, values)
+        showMessage({
+          message: `Restaurant ${updatedRestaurant.name} succesfully updated`,
+          type: 'success',
+          style: GlobalStyles.flashStyle,
+          titleStyle: GlobalStyles.flashTextStyle
+        })
+        navigation.navigate('RestaurantsScreen', { dirty: true })
+      } catch (error) {
+        console.log(error)
+        setBackendErrors(error.errors)
+      }
     }
   }
 
@@ -304,10 +304,9 @@ export default function EditRestaurantScreen ({ navigation, route }) {
             </View>
           </View>
           <ConfirmationModal
-          isVisible={porcentajeShowDialog} // Modal depende de `porcentajeShowDialog`
-          onCancel={() => setPorcentajeShowDialog(false)} // Ocultar si el usuario cancela
-          onConfirm={() => updateRestaurant(values)} // Confirmación continua con la actualización
-          >
+            isVisible={percentageShowDialog}
+            onCancel={() => setPercentageShowDialog(false)}
+            onConfirm={() => updateRestaurant(values)}>
           </ConfirmationModal>
         </ScrollView>
       )}
