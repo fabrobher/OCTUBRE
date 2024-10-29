@@ -1,5 +1,5 @@
-import { Restaurant, Product, RestaurantCategory, ProductCategory } from '../models/models.js'
-
+import { Sequelize } from 'sequelize'
+import { Product, ProductCategory, Restaurant, RestaurantCategory } from '../models/models.js'
 const index = async function (req, res) {
   try {
     const restaurants = await Restaurant.findAll(
@@ -47,14 +47,28 @@ const create = async function (req, res) {
   }
 }
 
+// alternative solution
+// const filterNotVisible = (restaurant) => {
+//  return restaurant.products.filter((product) => product.isVisible())
+// }
+
 const show = async function (req, res) {
   // Only returns PUBLIC information of restaurants
   try {
+    const currentDate = new Date()
     const restaurant = await Restaurant.findByPk(req.params.restaurantId, {
       attributes: { exclude: ['userId'] },
       include: [{
         model: Product,
         as: 'products',
+        where: {
+          visibleUntil: {
+            [Sequelize.Op.or]: // Indica que es un operador or
+            [{ [Sequelize.Op.eq]: null }, // que visible Until sea null (eq )==x
+              { [Sequelize.Op.gt]: currentDate }] // ó que visibleUntil sea mayor que currentDate (gt )> x
+          }
+
+        },
         include: { model: ProductCategory, as: 'productCategory' }
       },
       {
@@ -64,6 +78,9 @@ const show = async function (req, res) {
       order: [[{ model: Product, as: 'products' }, 'order', 'ASC']]
     }
     )
+    // Alternative solution
+    // const newProducts = filterNotVisible(restaurant)
+    // restaurant.setProducts(newProducts)
     res.json(restaurant)
   } catch (err) {
     res.status(500).send(err)

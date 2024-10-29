@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, FlatList, ImageBackground, Image, Pressable } from 'react-native'
-import { showMessage } from 'react-native-flash-message'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { getDetail } from '../../api/RestaurantEndpoints'
+import React, { useEffect, useState } from 'react'
+import { FlatList, Image, ImageBackground, Pressable, StyleSheet, View } from 'react-native'
+import { showMessage } from 'react-native-flash-message'
+import defaultProductImage from '../../../assets/product.jpeg'
 import { remove } from '../../api/ProductEndpoints'
+import { getDetail } from '../../api/RestaurantEndpoints'
+import DeleteModal from '../../components/DeleteModal'
 import ImageCard from '../../components/ImageCard'
 import TextRegular from '../../components/TextRegular'
 import TextSemiBold from '../../components/TextSemibold'
 import * as GlobalStyles from '../../styles/GlobalStyles'
-import DeleteModal from '../../components/DeleteModal'
-import defaultProductImage from '../../../assets/product.jpeg'
 
 export default function RestaurantDetailScreen ({ navigation, route }) {
   const [restaurant, setRestaurant] = useState({})
@@ -19,6 +19,20 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
   useEffect(() => {
     fetchRestaurantDetail()
   }, [route])
+
+  const isAboutToDisappear = (deadline) => {
+    console.log(deadline)
+    console.log(typeof (deadline))
+    const currentDate = new Date()
+    const deadLineDate = new Date(deadline)
+
+    const diferenciaTiempo = deadLineDate.getTime() - currentDate.getTime()
+
+    const daysLeft = Math.ceil(diferenciaTiempo / (1000 * 3600 * 24)) // diferencia de tiempo entre el número de milisegundos en un día
+    // math.ceil es para redondear para arriba
+
+    return daysLeft <= 7
+  }
 
   const renderHeader = () => {
     return (
@@ -65,6 +79,10 @@ export default function RestaurantDetailScreen ({ navigation, route }) {
         {!item.availability &&
           <TextRegular textStyle={styles.availability }>Not available</TextRegular>
         }
+        {item.visibleUntil && isAboutToDisappear(item.visibleUntil) &&
+          <TextRegular textStyle={{ textAlign: 'right', marginRight: 5, color: GlobalStyles.brandPrimary }}>
+            Is about to dissapear!
+            </TextRegular>}
          <View style={styles.actionButtonsContainer}>
           <Pressable
             onPress={() => navigation.navigate('EditProductScreen', { id: item.id })
